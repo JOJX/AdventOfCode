@@ -1,5 +1,4 @@
 import time
-
 start = time.time()
 
 with open('input.txt') as inputFile:  
@@ -21,6 +20,7 @@ row = 0
 col = 0
 
 for step in input:
+    #First decide which way to go
     if step[0] == "L":
         if currDir == 0:
             currDir = 3
@@ -34,6 +34,7 @@ for step in input:
     else:
         print("Wrong move")
     
+    #move proper amount of steps
     if currDir==0:
         row += int(step[1:])
     elif currDir==2:
@@ -45,5 +46,6 @@ for step in input:
         
 print(row,  col)
 print("Result: ",  abs(row)+abs(col))
+
 end = time.time()
 print("Took: ",  end-start)
