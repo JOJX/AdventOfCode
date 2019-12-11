@@ -1,8 +1,8 @@
 lineA = []
 lineB = []
 
-with open('input.txt') as inputFile:
-    lines = inputFile.readlines()
+with open('intCode.txt') as intCodeFile:
+    lines = intCodeFile.readlines()
     for el in lines[0].split(','):
         lineA.append(el)
     for el in lines[1].split(','):
@@ -57,4 +57,4 @@ markPoints(lineB, visitedPointsB,x,y)
 distance = lookForCrossPoint(visitedPointsA, visitedPointsB, distance)
 
 print(distance)
-#print("Final result: ", input)
+#print("Final result: ", intCode)

@@ -1,15 +1,15 @@
 import math as math
 
-inputFile = open('input.txt')
-#inputFile = open('testInput.txt')
-input = inputFile.readlines()
+intCodeFile = open('intCode.txt')
+#intCodeFile = open('testintCode.txt')
+intCode = intCodeFile.readlines()
 
 result = 0
 
 def calcFuelNeeds(mass):
     return math.floor(mass/3) - 2
 
-for line in input:
+for line in intCode:
     while True:
         subResult = calcFuelNeeds(int(line))
         print(subResult)
