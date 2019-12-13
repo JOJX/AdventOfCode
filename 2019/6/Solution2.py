@@ -1,39 +1,72 @@
-intCode = []
-goal = 19690720
+planets = []
+orbiters = []
 
-def loadintCode():
-    intCode.clear()
-    with open('intCode.txt') as intCodeFile:
-       for line in intCodeFile:
-            for el in line.split(','):
-                intCode.append(int(el))
+with open('input.txt') as inFile:
+   for line in inFile:
+        line = line.rstrip()
+        planet, orbiter = line.split(")")
+        planets.append(planet)
+        orbiters.append(orbiter)
 
-def executeOpCode(position):
-    if intCode[position] == 1:
-        intCode[intCode[position+3]] = intCode[intCode[position+1]] + intCode[intCode[position+2]]
-    elif intCode[position] == 2:
-        intCode[intCode[position+3]] = intCode[intCode[position+1]] * intCode[intCode[position+2]]
+class Planet:
+    def __init__(self, name, orbitsAround):
+        self.name = name
+        self.orbitsAround = orbitsAround
+        self.ownOrbiters = []
 
-loadintCode()
+    def addOrbiter(self, orbiter):
+        self.ownOrbiters.append(orbiter)
 
-for noun in range(0,100,1):
-    if intCode[0] == goal:
+    def getPredecesor(self):
+        if self.orbitsAround != '':
+            return self.orbitsAround
+        else:
+            return False
+
+planetsDict = {}
+
+for i in range(0, len(orbiters)):
+    if i == 0:
+        p = Planet(planets[i], '')
+        planetsDict[planets[i]]= p
+
+    p=Planet(orbiters[i], planets[i])
+
+    planetsDict[orbiters[i]]= p
+
+    if planets[i] in planetsDict:
+        planetsDict[planets[i]].addOrbiter(orbiters[i])
+    else:
+        p = Planet(planets[i], '')
+        planetsDict[planets[i]]= p
+
+result = 0
+
+YOU = planetsDict['YOU']
+SAN = planetsDict['SAN']
+commonPlanet = planetsDict['COM']
+
+youPred = []
+sanPred = []
+planet = YOU
+
+while planet.getPredecesor():
+    youPred.append(planetsDict[planet.getPredecesor()])
+    planet = planetsDict[planet.getPredecesor()]
+
+planet = SAN
+
+while planet.getPredecesor():
+    pre = planetsDict[planet.getPredecesor()]
+    sanPred.append(pre)
+    if pre in youPred:
+        result += len(sanPred) -1
+        commonPlanet = pre
         break
-    for verb in range(0,100,1):
-        if intCode[0] == goal:
-            break
-        loadintCode()
-        intCode[1] = noun
-        intCode[2] = verb
+    planet = pre
 
-        for i in range(0, len(intCode), 4):
-            if intCode[i] == 1 or intCode[i] == 2:
-                executeOpCode(i)
-            elif intCode[i] == 99:
-                if intCode[0] == goal:
-                    print("The answer is ", 100*noun+verb)
-                    break
-                break
-            else:
-                print("Encountering an unknown opcode means something went wrong")
+for i in range(0,len(youPred)):
+    if youPred[i] == commonPlanet:
+        result += i
 
+print("RESULT: ", result)

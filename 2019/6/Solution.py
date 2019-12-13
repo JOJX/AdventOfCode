@@ -1,108 +1,50 @@
-intCode = []
-step = 2
-with open('input.txt') as intCodeFile:
-   for line in intCodeFile:
-        for el in line.split(','):
-            intCode.append(int(el))
+planets = []
+orbiters = []
 
-#opcode - extracted OpCode to execute
-#position - position in the whole IntCode  
-#Parameter modes: 0-position mode(address), 1-Immediate mode(value)
-def executeOpCode(opCode, position):
-    instruction = int(opCode[0]) #First two signs are for instruction
-    instrLen = 0
-    paramAMode = 0
-    paramBMode = 0
+with open('input.txt') as inFile:
+   for line in inFile:
+        line = line.rstrip()
+        planet, orbiter = line.split(")")
+        planets.append(planet)
+        orbiters.append(orbiter)
 
-    #PREPARE PARAMETERS
-    if len(opCode) == 4:
-        paramAMode = int(opCode[2])
-        paramBMode = int(opCode[3])
-    elif len(opCode) == 3:
-        paramAMode = int(opCode[2])
+class Planet:
+    def __init__(self, name, orbitsAround):
+        self.name = name
+        self.orbitsAround = orbitsAround
+        self.ownOrbiters = []
 
-    if instruction != 3 and instruction != 4:
-        if paramAMode: #Value mode
-            paramA = intCode[position+1]
-        else: #Address mode
-            paramA = intCode[intCode[position+1]]
-                
-        if paramBMode: #Value mode
-            paramB = intCode[position+2]
-        else: #Address mode
-            paramB = intCode[intCode[position+2]]
-    elif instruction == 4:
-        if paramAMode: #Value mode
-            paramA = intCode[position+1]
-        else: #Address mode
-            paramA = intCode[intCode[position+1]]
-                
-    # END OF - PREPARE PARAMETERS
-    ##############################################
-    # EXECUTE INSTRUCTION:
-    if instruction == 1: #Addition 
-        instrLen = 4
-        intCode[intCode[position+3]] = paramA + paramB
+    def addOrbiter(self, orbiter):
+        self.ownOrbiters.append(orbiter)
 
-    elif instruction == 2: #Multiplication
-        instrLen = 4
-        intCode[intCode[position+3]] = paramA * paramB
-
-    elif instruction == 3: #Input
-        instrLen = 2
-        intCode[intCode[position+1]] = int(input())
-
-    elif instruction == 4: #Output
-        instrLen = 2
-        print(paramA)
-
-    elif instruction == 5: #Jump if true
-        if paramA:
-            instrLen = paramB - position
+    def getPredecesor(self):
+        if self.orbitsAround != '':
+            return self.orbitsAround
         else:
-            instrLen = 3
+            return False
 
-    elif instruction == 6: #Jump if false
-        if paramA == 0:
-            instrLen = paramB - position
-        else:
-            instrLen = 3
+planetsDict = {}
 
-    elif instruction == 7: #Jump if less than
-        if paramA < paramB:
-            intCode[intCode[position+3]] = 1
-        else:
-            intCode[intCode[position+3]] = 0
-        instrLen = 4
+for i in range(0, len(orbiters)):
+    if i == 0:
+        p = Planet(planets[i], '')
+        planetsDict[planets[i]]= p
 
-    elif instruction == 8: #Jump if equals
-        if paramA == paramB:
-            intCode[intCode[position+3]] = 1
-        else:
-            intCode[intCode[position+3]] = 0
-        instrLen = 4
+    p=Planet(orbiters[i], planets[i])
 
+    planetsDict[orbiters[i]]= p
+
+    if planets[i] in planetsDict:
+        planetsDict[planets[i]].addOrbiter(orbiters[i])
     else:
-        instrLen = -1
-        print("Unknown Instruction")
-    
-    return instrLen
+        p = Planet(planets[i], '')
+        planetsDict[planets[i]]= p
 
-pos=0
-while pos < len(intCode):
-    opCode = str(intCode[pos])
-    opCode = opCode[::-1] #reverse string for easier extracting of parameters mode
-    
-    if opCode == '99':
-        print("DONE")
-        break
-    else:
-        instrLen = executeOpCode(opCode, pos)
+result = 0
 
-    if instrLen>0:
-        pos += instrLen
-    else:
-        break
+for name,planet in planetsDict.items():
+    while planet.getPredecesor():
+        result += 1
+        planet = planetsDict[planet.getPredecesor()]
 
-
-print("I MEAN REALLY DONE")
+print("RESULT: ", result)
